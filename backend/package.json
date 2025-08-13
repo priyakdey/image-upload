@@ -1,0 +1,36 @@
+{
+  "name": "image-upload-backend",
+  "version": "1.0.0",
+  "description": "Backend for image upload",
+  "keywords": [
+    "nodejs",
+    "express",
+    "javascript"
+  ],
+  "homepage": "https://github.com/priyakdey/image-upload#readme",
+  "bugs": {
+    "url": "https://github.com/priyakdey/image-upload/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/priyakdey/image-upload.git"
+  },
+  "license": "MIT",
+  "author": "Priyak Dey",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.11.1",
+    "@azure/storage-blob": "^12.28.0",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
