@@ -1,0 +1,45 @@
+.Header {
+  height: var(--header-height);
+  border-bottom: 1px solid var(--accent-color);
+  display: flex;
+  align-items: center;
+}
+
+.Header-container {
+  --margin: 100px;
+
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  margin-right: var(--margin);
+  margin-left: var(--margin);
+  height: 50%;
+}
+
+.logo {
+  height: 1.8rem;
+}
+
+.theme-container {
+  display: flex;
+  border: 1px solid var(--accent-color);
+  height: 40px;
+  width: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background-color: var(--secondary-background-color);
+}
+
+.theme-toggle-btn {
+
+}
+
+.theme-icon {
+  --dimension: 1.8rem;
+
+  height: var(--dimension);
+  width: var(--dimension);
+}
