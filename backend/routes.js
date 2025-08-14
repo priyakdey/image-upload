@@ -21,8 +21,6 @@ router.post("/upload", multerMiddleware.single("file"), async (req, res) => {
     return;
   }
 
-  console.log(Object.prototype.toString.call(req.file));
-
   const file = req.file;
 
   const size = file.size;
@@ -49,15 +47,13 @@ router.post("/upload", multerMiddleware.single("file"), async (req, res) => {
       res.status(400).send({
         "message": "We only support png, jpeg, jpg and gif"
       });
+      return;
     }
   }
 
   try {
     const url = await uploadBlob(buffer, size, mimetype);
-    res.status(201).header("Location", url)
-      .send({
-        "url": url
-      });
+    res.status(201).header("Location", url).send();
   } catch (err) {
     res.status(500).send({
       "message": "Something went wrong, please try again later"

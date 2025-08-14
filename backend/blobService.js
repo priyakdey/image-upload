@@ -1,7 +1,8 @@
 import {
   BlobSASPermissions,
   BlobServiceClient,
-  generateBlobSASQueryParameters, SASProtocol,
+  generateBlobSASQueryParameters,
+  SASProtocol,
   StorageSharedKeyCredential
 } from "@azure/storage-blob";
 import dotenv from "dotenv";
@@ -53,7 +54,9 @@ function generateSASReadString(blobName, mimetype) {
     startsOn: iat,
     expiresOn: eat,
     protocol: SASProtocol.HttpsAndHttp,
-    contentType: mimetype
+    contentType: mimetype,
+    contentDisposition: `attachment; name=image.${mimetype.split("/")[1].toLowerCase()}`,
+    cacheControl: "max-age=2592000"
   };
 
   const credentials = new StorageSharedKeyCredential(AZURE_ACCOUNT_NAME, AZURE_ACCOUNT_KEY);
