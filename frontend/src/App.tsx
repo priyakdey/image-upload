@@ -1,27 +1,47 @@
-import uploadIcon from "./assets/exit.svg";
+import { useState } from "react";
+import downloadSvg from "./assets/download.svg";
+import shareSvg from "./assets/Link.svg";
+import AppDropZone from "./components/dropzone/AppDropZone.tsx";
 import Header from "./components/header/Header.tsx";
 import "./App.css";
 
 
 function App() {
+  const [ location, setLocation ] = useState<string | null>(null);
+
+  function copyToClipboard(): void {
+    const url = location!;
+    navigator.clipboard.writeText(url)
+      .catch((err) => console.error(err));  // TODO: handle error
+  }
+
+  function downloadImage() {
+    const url = location!;
+    fetch(url)
+      .catch((err) => console.error(err));  // TODO: handle error
+  }
+
   return (
     <>
       <Header />
       <main>
         <div className="outer-container">
-          <div className="inner-container">
-            <div className="icon-container">
-              <img src={uploadIcon} alt="upload image" className="upload-icon" />
-            </div>
-            <div className="text-container">
-              <p className="text">
-                Drag & drop a file or
-                <span className="browse-file"> browse files</span>
-              </p>
-              <p className="subtext">JPG, PNG or GIF - Max file size 2MB</p>
-            </div>
-          </div>
+          <AppDropZone location={location} setLocation={setLocation} />
         </div>
+        {
+          (location !== null && location !== "") && (
+            <div className="btn-container">
+              <button className="btn" onClick={copyToClipboard}>
+                <img src={shareSvg} alt="share button" />
+                Share
+              </button>
+              <button className="btn" onClick={downloadImage}>
+                <img src={downloadSvg} alt="download button" />
+                Download
+              </button>
+            </div>
+          )
+        }
       </main>
     </>
   );
