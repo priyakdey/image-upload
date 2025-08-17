@@ -1,14 +1,15 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import uploadIcon from "../../assets/exit.svg";
-import "./AppDropZone.css";
+import "./FileDropZone.css";
 
-interface AppDropZoneProps {
+interface FileDropZoneProps {
   location: string | null;
   setLocation: (l: string | null) => void;
+  setId: (i: string | null) => void;
 }
 
-function AppDropZone({ location, setLocation }: AppDropZoneProps) {
+function FileDropZone({ location, setLocation, setId }: FileDropZoneProps) {
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) return;
 
@@ -35,6 +36,7 @@ function AppDropZone({ location, setLocation }: AppDropZoneProps) {
 
     const location = res.headers.get("Location");
     setLocation(location);
+    setId((await res.json()).id);
   }, []);
 
   const {
@@ -82,4 +84,4 @@ function AppDropZone({ location, setLocation }: AppDropZoneProps) {
   );
 }
 
-export default AppDropZone;
+export default FileDropZone;

@@ -10,7 +10,7 @@ const corsOptions = {
   origin: "http://localhost:5173",  // TODO: env driven
   methods: "POST,OPTIONS",
   headers: [ "Origin", "X-Powered-By", "Location", "Content-Type", "Accept" ],
-  exposedHeaders: [ "Location", "X-Powered-By" ]
+  exposedHeaders: [ "Location", "X-Powered-By", "Content-Type", "Content-Length", "Content-Disposition", "Cache-Control" ]
 };
 
 server.use(cors(corsOptions));

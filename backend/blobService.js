@@ -16,33 +16,50 @@ const AZURE_ACCOUNT_CONTAINER = process.env.AZURE_ACCOUNT_CONTAINER;
 
 const CONNECTION_STRING = `DefaultEndpointsProtocol=http;AccountName=${AZURE_ACCOUNT_NAME};AccountKey=${AZURE_ACCOUNT_KEY};BlobEndpoint=http://127.0.0.1:10000/${AZURE_ACCOUNT_NAME};`;
 
-export async function uploadBlob(file) {
-  const size = file.size;
-  const buffer = file.buffer;
-  const filename = file.name;
-  const mimetype = file.mimetype;
+const blobServiceClient = BlobServiceClient.fromConnectionString(CONNECTION_STRING);
+const containerServiceClient = blobServiceClient.getContainerClient(AZURE_ACCOUNT_CONTAINER);
 
-  const blobServiceClient = BlobServiceClient.fromConnectionString(CONNECTION_STRING);
-  const containerServiceClient = blobServiceClient.getContainerClient(AZURE_ACCOUNT_CONTAINER);
+export async function uploadBlob(file) {
+  const { size, buffer, originalname, mimetype } = file;
 
   const id = uuidv7();
+  const metadata = {
+    "filename": originalname,
+    "mimetype": mimetype,
+    "size": size.toString()
+  };
+
   const {
     blockBlobClient,
     response
-  } = await containerServiceClient.uploadBlockBlob(id, buffer, size);
-
+  } = await containerServiceClient.uploadBlockBlob(id, buffer, size, { metadata: metadata });
 
   if (response.errorCode) {
     console.error(`Faced issue when uploading the image: ${response.errorCode}`);
     throw new Error(response.errorCode);
   }
 
-  const url = `${blockBlobClient.url}?${generateSASReadString(filename, mimetype)}`;
-
+  const url = `${blockBlobClient.url}?${generateSASReadString(originalname. mimetype)}`;
   return Promise.resolve({ "id": id, "url": url });
 }
 
-function generateSASReadString(blobName, mimetype) {
+export async function downloadBlob(blobName) {
+  const blobServiceClient = BlobServiceClient.fromConnectionString(CONNECTION_STRING);
+  const containerServiceClient = blobServiceClient.getContainerClient(AZURE_ACCOUNT_CONTAINER);
+
+  const blobClient = containerServiceClient.getBlobClient(blobName);
+
+  if (!(await blobClient.exists())) {
+    throw new Error("File not found");
+  }
+
+  const metadata = await blobClient.getProperties();
+  const buffer = await blobClient.downloadToBuffer();
+
+  return Promise.resolve({ "metadata": metadata, "buffer": buffer });
+}
+
+function generateSASReadString(filename, mimetype) {
   const permissions = new BlobSASPermissions();
   permissions.read = true;
 
@@ -52,14 +69,14 @@ function generateSASReadString(blobName, mimetype) {
 
   const blobSasModel = {
     containerName: AZURE_ACCOUNT_CONTAINER,
-    blobName: blobName,
+    blobName: filename,
     permissions: permissions,
     startsOn: iat,
     expiresOn: eat,
     protocol: SASProtocol.HttpsAndHttp,
     contentType: mimetype,
-    contentDisposition: `attachment; filename=image.${mimetype.split("/")[1].toLowerCase()}`,
-    cacheControl: "max-age=2592000"
+    contentDisposition: `attachment; filename=${filename}`,
+    cacheControl: "public; max-age=2592000"
   };
 
   const credentials = new StorageSharedKeyCredential(AZURE_ACCOUNT_NAME, AZURE_ACCOUNT_KEY);

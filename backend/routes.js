@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
-import { uploadBlob } from "./blobService.js";
-
+import { Readable } from "stream";
+import { downloadBlob, uploadBlob } from "./blobService.js";
 
 const router = express.Router();
 const multerMiddleware = multer();
@@ -55,11 +55,38 @@ router.post("/upload", multerMiddleware.single("file"), async (req, res) => {
     const { id, url } = await uploadBlob(file);
     res.status(201).header("Location", url).send({ "id": id });
   } catch (err) {
+    console.error("ERROR:", err);
     res.status(500).send({
       "message": "Something went wrong, please try again later"
     });
   }
 
+});
+
+router.get("/download/:id", async (req, res) => {
+  const id = req.params.id;
+  try {
+    const { metadata, buffer } = await downloadBlob(id);
+
+    const contentType = metadata.contentType || "application/octet-stream";
+    const contentLength = metadata.contentLength || metadata.metadata.size;
+    const contentDisposition = `attachment; filename=${metadata.metadata.filename}`;
+    const cacheControl = metadata.cacheControl || "public; max-age=2592000";
+
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Length", contentLength);
+    res.setHeader("Content-Disposition", contentDisposition);
+    res.setHeader("Cache-Control", cacheControl);
+
+    res.status(200);
+
+    Readable.from(buffer).pipe(res);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({
+      "message": "Something went wrong, please try again later"
+    });
+  }
 });
 
 export { router };

@@ -1,13 +1,14 @@
 import { useState } from "react";
 import downloadSvg from "./assets/download.svg";
 import shareSvg from "./assets/Link.svg";
-import AppDropZone from "./components/dropzone/AppDropZone.tsx";
+import FileDropZone from "./components/dropzone/FileDropZone.tsx";
 import Header from "./components/header/Header.tsx";
 import "./App.css";
 
 
 function App() {
   const [ location, setLocation ] = useState<string | null>(null);
+  const [ id, setId ] = useState<string | null>(null);
 
   function copyToClipboard(): void {
     const url = location!;
@@ -15,10 +16,23 @@ function App() {
       .catch((err) => console.error(err));  // TODO: handle error
   }
 
-  function downloadImage() {
-    const url = location!;
-    fetch(url)
-      .catch((err) => console.error(err));  // TODO: handle error
+  async function downloadImage() {
+    const url = `http://localhost:3000/api/download/${id}`;
+
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const filename = res.headers.get("Content-Disposition")?.split(";")[1].split("=")[1].trim();
+
+    const downloadUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+
+    a.href = downloadUrl;
+    a.download = filename!;
+
+    document.body.appendChild(a);
+    a.click();
+    URL.revokeObjectURL(downloadUrl);
+    a.remove();
   }
 
   return (
@@ -26,7 +40,11 @@ function App() {
       <Header />
       <main>
         <div className="outer-container">
-          <AppDropZone location={location} setLocation={setLocation} />
+          <FileDropZone
+            location={location}
+            setLocation={setLocation}
+            setId={setId}
+          />
         </div>
         {
           (location !== null && location !== "") && (
