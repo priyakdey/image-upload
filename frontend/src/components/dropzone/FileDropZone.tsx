@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
+import { toast } from "react-toastify";
 import uploadIcon from "../../assets/exit.svg";
 import "./FileDropZone.css";
 
@@ -11,11 +12,23 @@ interface FileDropZoneProps {
 
 function FileDropZone({ location, setLocation, setId }: FileDropZoneProps) {
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    if (acceptedFiles.length === 0) return;
+    if (acceptedFiles.length === 0) {
+      toast.warning("Upload a file", {
+        position: "bottom-right",
+        theme: localStorage.getItem("theme") ?? "light"
+      });
+      return;
+    }
 
     const file = acceptedFiles[0];
 
-    if (!file) return;
+    if (!file) {
+      toast.warning("Upload a file", {
+        position: "bottom-right",
+        theme: localStorage.getItem("theme") ?? "light"
+      });
+      return;
+    }
 
     const formData = new FormData();
     formData.append("file", file);
@@ -28,11 +41,25 @@ function FileDropZone({ location, setLocation, setId }: FileDropZoneProps) {
     const status = res.status;
     if (status === 400 || status === 413 || status === 500) {
       const body = await res.json();
+      toast.error(body.message, {
+        position: "bottom-right",
+        theme: localStorage.getItem("theme") ?? "light"
+      });
       console.error("EXPECTED", status, body);
       return;
     } else if (status !== 201) {
+      toast.error("Something went wrong. Please try again later.", {
+        position: "bottom-right",
+        theme: localStorage.getItem("theme") ?? "light"
+      });
       console.error("UNEXPECTED", status);
+      return;
     }
+
+    toast.info("Uploaded file successfully.", {
+        position: "bottom-right",
+        theme: localStorage.getItem("theme") ?? "light"
+      });
 
     const location = res.headers.get("Location");
     setLocation(location);

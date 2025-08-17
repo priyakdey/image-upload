@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 import downloadSvg from "./assets/download.svg";
 import shareSvg from "./assets/Link.svg";
 import FileDropZone from "./components/dropzone/FileDropZone.tsx";
@@ -10,16 +11,37 @@ function App() {
   const [ location, setLocation ] = useState<string | null>(null);
   const [ id, setId ] = useState<string | null>(null);
 
-  function copyToClipboard(): void {
+  async function copyToClipboard(): Promise<void> {
     const url = location!;
-    navigator.clipboard.writeText(url)
-      .catch((err) => console.error(err));  // TODO: handle error
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.info("URL copied to clipboard", {
+        position: "bottom-right",
+        theme: localStorage.getItem("theme") ?? "light"
+      });
+    } catch(err) {
+      toast.error("Could not copy to clipboard", {
+        position: "bottom-right",
+        theme: localStorage.getItem("theme") ?? "light",
+      });
+      console.error("Could not copy to clipboard", err);
+    }
   }
 
-  async function downloadImage() {
+  async function downloadImage(): Promise<void> {
     const url = `http://localhost:3000/api/download/${id}`;
 
     const res = await fetch(url);
+
+    if (!res.ok) {
+      toast.error("Something went wrong. Please try again later.", {
+        position: "bottom-right",
+        theme: localStorage.getItem("theme") ?? "light",
+      });
+      console.error("Could not download image: ", res.status);
+      return;
+    }
+
     const blob = await res.blob();
     const filename = res.headers.get("Content-Disposition")?.split(";")[1].split("=")[1].trim();
 
@@ -61,6 +83,7 @@ function App() {
           )
         }
       </main>
+      <ToastContainer />
     </>
   );
 }

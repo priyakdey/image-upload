@@ -39,7 +39,7 @@ export async function uploadBlob(file) {
     throw new Error(response.errorCode);
   }
 
-  const url = `${blockBlobClient.url}?${generateSASReadString(originalname. mimetype)}`;
+  const url = `${blockBlobClient.url}?${generateSASReadString(originalname.mimetype)}`;
   return Promise.resolve({ "id": id, "url": url });
 }
 

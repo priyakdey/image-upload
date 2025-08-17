@@ -1,5 +1,6 @@
 import express from "express";
 import multer from "multer";
+import * as url from "node:url";
 import { Readable } from "stream";
 import { downloadBlob, uploadBlob } from "./blobService.js";
 
@@ -55,10 +56,10 @@ router.post("/upload", multerMiddleware.single("file"), async (req, res) => {
     const { id, url } = await uploadBlob(file);
     res.status(201).header("Location", url).send({ "id": id });
   } catch (err) {
-    console.error("ERROR:", err);
-    res.status(500).send({
-      "message": "Something went wrong, please try again later"
-    });
+    res.status(500)
+      .send({
+        "message": "Something went wrong, please try again later"
+      });
   }
 
 });
