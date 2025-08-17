@@ -1,0 +1,41 @@
+.outer-container {
+  background-color: var(--secondary-background-color);
+  border-radius: 10px;
+  height: 420px; /* inner container dimensions + 20px */
+  width: 770px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+
+.btn {
+  height: 30px;
+  width: 100px;
+  border-radius: 10px;
+  border: none;
+  color: var(--text-color);
+  background-color: var(--secondary-text-color);
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.btn:hover {
+  cursor: pointer;
+}
+
+.btn:active {
+  --displacement: 1px;
+
+  transform: translateX(var(--displacement)) translateY(var(--displacement));
+}

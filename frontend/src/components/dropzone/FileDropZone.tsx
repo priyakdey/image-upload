@@ -63,7 +63,7 @@ function FileDropZone({
         return;
       }
 
-      message = "Uploaded file successfully.";
+      message = "File uploaded successfully.";
       isSuccess = true;
       const location = res.headers.get("Location");
       setLocation(location);

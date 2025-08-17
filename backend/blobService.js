@@ -20,7 +20,6 @@ const blobServiceClient = BlobServiceClient.fromConnectionString(CONNECTION_STRI
 const containerServiceClient = blobServiceClient.getContainerClient(AZURE_ACCOUNT_CONTAINER);
 
 export async function uploadBlob(file) {
-  throw new Error();
   const { size, buffer, originalname, mimetype } = file;
 
   const id = uuidv7();
