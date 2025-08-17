@@ -1,6 +1,5 @@
 import express from "express";
 import multer from "multer";
-import * as url from "node:url";
 import { Readable } from "stream";
 import { downloadBlob, uploadBlob } from "./blobService.js";
 
@@ -17,7 +16,7 @@ const SUPPORTED_MIMETYPE = new Map([
 router.post("/upload", multerMiddleware.single("file"), async (req, res) => {
   if (!req.file || req.file.size === 0) {
     res.status(400).send({
-      "message": "No file uploaded"
+      "message": "No file uploaded."
     });
     return;
   }
@@ -27,7 +26,7 @@ router.post("/upload", multerMiddleware.single("file"), async (req, res) => {
   const size = file.size;
   if (size > SIZE_LIMIT) {
     res.status(413).send({
-      "message": "Please upload files within 2MB"
+      "message": "Please upload files within 2MB."
     });
     return;
   }
@@ -35,7 +34,7 @@ router.post("/upload", multerMiddleware.single("file"), async (req, res) => {
   const mimetype = file.mimetype;
   if (!SUPPORTED_MIMETYPE.has(mimetype)) {
     res.status(400).send({
-      "message": "We only support png, jpeg, jpg and gif"
+      "message": "We only support png, jpeg, jpg and gif."
     });
     return;
   }
@@ -46,7 +45,7 @@ router.post("/upload", multerMiddleware.single("file"), async (req, res) => {
   for (let i = 0; i < magicNumber.length; i++) {
     if (buffer[i] !== magicNumber[i]) {
       res.status(400).send({
-        "message": "We only support png, jpeg, jpg and gif"
+        "message": "We only support png, jpeg, jpg and gif."
       });
       return;
     }
@@ -85,7 +84,7 @@ router.get("/download/:id", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).send({
-      "message": "Something went wrong, please try again later"
+      "message": "Something went wrong, please try again later."
     });
   }
 });

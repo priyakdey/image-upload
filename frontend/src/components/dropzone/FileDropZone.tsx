@@ -8,9 +8,17 @@ interface FileDropZoneProps {
   location: string | null;
   setLocation: (l: string | null) => void;
   setId: (i: string | null) => void;
+  setIsUploading: (isUploading: boolean) => void;
 }
 
-function FileDropZone({ location, setLocation, setId }: FileDropZoneProps) {
+function FileDropZone({
+                        location,
+                        setLocation,
+                        setId,
+                        setIsUploading
+                      }: FileDropZoneProps) {
+
+
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     if (acceptedFiles.length === 0) {
       toast.warning("Upload a file", {
@@ -33,37 +41,52 @@ function FileDropZone({ location, setLocation, setId }: FileDropZoneProps) {
     const formData = new FormData();
     formData.append("file", file);
 
-    const res = await fetch("http://localhost:3000/api/upload", {
-      method: "POST",
-      body: formData
-    });
+    setIsUploading(true);
+    let message = "";
+    let isSuccess = false;
 
-    const status = res.status;
-    if (status === 400 || status === 413 || status === 500) {
-      const body = await res.json();
-      toast.error(body.message, {
-        position: "bottom-right",
-        theme: localStorage.getItem("theme") ?? "light"
+    try {
+      const res = await fetch("http://localhost:3000/api/upload", {
+        method: "POST",
+        body: formData
       });
-      console.error("EXPECTED", status, body);
-      return;
-    } else if (status !== 201) {
-      toast.error("Something went wrong. Please try again later.", {
-        position: "bottom-right",
-        theme: localStorage.getItem("theme") ?? "light"
-      });
-      console.error("UNEXPECTED", status);
-      return;
+
+      const status = res.status;
+      if (status === 400 || status === 413 || status === 500) {
+        const body = await res.json();
+        message = body.message;
+        console.error("EXPECTED", status, body);
+        return;
+      } else if (status !== 201) {
+        message = "Something went wrong. Please try again later.";
+        console.error("UNEXPECTED", status);
+        return;
+      }
+
+      message = "Uploaded file successfully.";
+      isSuccess = true;
+      const location = res.headers.get("Location");
+      setLocation(location);
+      setId((await res.json()).id);
+    } catch(error) {
+      message = "Something went wrong. Please try again later.";
+      console.error(error);
+    } finally {
+      setTimeout(() => {
+        setIsUploading(false);
+        if (isSuccess) {
+          toast.info(message, {
+            position: "bottom-right",
+            theme: localStorage.getItem("theme") ?? "light"
+          });
+        } else {
+          toast.error(message, {
+            position: "bottom-right",
+            theme: localStorage.getItem("theme") ?? "light"
+          });
+        }
+      }, 5000);
     }
-
-    toast.info("Uploaded file successfully.", {
-        position: "bottom-right",
-        theme: localStorage.getItem("theme") ?? "light"
-      });
-
-    const location = res.headers.get("Location");
-    setLocation(location);
-    setId((await res.json()).id);
   }, []);
 
   const {

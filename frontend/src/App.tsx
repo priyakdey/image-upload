@@ -10,6 +10,7 @@ import "./App.css";
 function App() {
   const [ location, setLocation ] = useState<string | null>(null);
   const [ id, setId ] = useState<string | null>(null);
+  const [ isUploading, setIsUploading ] = useState<boolean>(false);
 
   async function copyToClipboard(): Promise<void> {
     const url = location!;
@@ -22,7 +23,7 @@ function App() {
     } catch(err) {
       toast.error("Could not copy to clipboard", {
         position: "bottom-right",
-        theme: localStorage.getItem("theme") ?? "light",
+        theme: localStorage.getItem("theme") ?? "light"
       });
       console.error("Could not copy to clipboard", err);
     }
@@ -36,7 +37,7 @@ function App() {
     if (!res.ok) {
       toast.error("Something went wrong. Please try again later.", {
         position: "bottom-right",
-        theme: localStorage.getItem("theme") ?? "light",
+        theme: localStorage.getItem("theme") ?? "light"
       });
       console.error("Could not download image: ", res.status);
       return;
@@ -61,26 +62,36 @@ function App() {
     <>
       <Header />
       <main>
-        <div className="outer-container">
-          <FileDropZone
-            location={location}
-            setLocation={setLocation}
-            setId={setId}
-          />
-        </div>
         {
-          (location !== null && location !== "") && (
-            <div className="btn-container">
-              <button className="btn" onClick={copyToClipboard}>
-                <img src={shareSvg} alt="share button" />
-                Share
-              </button>
-              <button className="btn" onClick={downloadImage}>
-                <img src={downloadSvg} alt="download button" />
-                Download
-              </button>
-            </div>
-          )
+          !isUploading ?
+            (
+              <>
+                <div className="outer-container">
+                  <FileDropZone
+                    location={location}
+                    setLocation={setLocation}
+                    setId={setId}
+                    setIsUploading={setIsUploading}
+                  />
+                </div>
+                {
+                  (location !== null && location !== "") && (
+                    <div className="btn-container">
+                      <button className="btn" onClick={copyToClipboard}>
+                        <img src={shareSvg} alt="share button" />
+                        Share
+                      </button>
+                      <button className="btn" onClick={downloadImage}>
+                        <img src={downloadSvg} alt="download button" />
+                        Download
+                      </button>
+                    </div>
+                  )
+                }
+              </>
+            )
+            :
+            <p>Loading....</p>
         }
       </main>
       <ToastContainer />
