@@ -16,17 +16,20 @@ const AZURE_ACCOUNT_CONTAINER = process.env.AZURE_ACCOUNT_CONTAINER;
 
 const CONNECTION_STRING = `DefaultEndpointsProtocol=http;AccountName=${AZURE_ACCOUNT_NAME};AccountKey=${AZURE_ACCOUNT_KEY};BlobEndpoint=http://127.0.0.1:10000/${AZURE_ACCOUNT_NAME};`;
 
-export async function uploadBlob(buffer, size, mimetype) {
+export async function uploadBlob(file) {
+  const size = file.size;
+  const buffer = file.buffer;
+  const filename = file.name;
+  const mimetype = file.mimetype;
 
   const blobServiceClient = BlobServiceClient.fromConnectionString(CONNECTION_STRING);
-
   const containerServiceClient = blobServiceClient.getContainerClient(AZURE_ACCOUNT_CONTAINER);
 
-  const blobName = uuidv7();
+  const id = uuidv7();
   const {
     blockBlobClient,
     response
-  } = await containerServiceClient.uploadBlockBlob(blobName, buffer, size);
+  } = await containerServiceClient.uploadBlockBlob(id, buffer, size);
 
 
   if (response.errorCode) {
@@ -34,9 +37,9 @@ export async function uploadBlob(buffer, size, mimetype) {
     throw new Error(response.errorCode);
   }
 
-  const url = blockBlobClient.url;
+  const url = `${blockBlobClient.url}?${generateSASReadString(filename, mimetype)}`;
 
-  return Promise.resolve(url + "?" + generateSASReadString(blobName, mimetype));
+  return Promise.resolve({ "id": id, "url": url });
 }
 
 function generateSASReadString(blobName, mimetype) {

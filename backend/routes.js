@@ -52,8 +52,8 @@ router.post("/upload", multerMiddleware.single("file"), async (req, res) => {
   }
 
   try {
-    const url = await uploadBlob(buffer, size, mimetype);
-    res.status(201).header("Location", url).send();
+    const { id, url } = await uploadBlob(file);
+    res.status(201).header("Location", url).send({ "id": id });
   } catch (err) {
     res.status(500).send({
       "message": "Something went wrong, please try again later"
