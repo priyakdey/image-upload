@@ -58,7 +58,7 @@ function generateSASReadString(blobName, mimetype) {
     expiresOn: eat,
     protocol: SASProtocol.HttpsAndHttp,
     contentType: mimetype,
-    contentDisposition: `attachment; name=image.${mimetype.split("/")[1].toLowerCase()}`,
+    contentDisposition: `attachment; filename=image.${mimetype.split("/")[1].toLowerCase()}`,
     cacheControl: "max-age=2592000"
   };
 
